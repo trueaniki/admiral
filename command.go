@@ -11,7 +11,9 @@ type Command struct {
 	Description string
 	Commands    []*Command
 	Flags       []*Flag
-	Args        []string
+	Args        []*Arg
+
+	Is bool
 
 	parent *Command
 
@@ -52,9 +54,21 @@ func (c *Command) FlagByAlias(alias string) *Flag {
 	return nil
 }
 
+func (c *Command) Arg(name string) *Arg {
+	for _, arg := range c.Args {
+		if arg.Name == name {
+			return arg
+		}
+	}
+	return nil
+}
+
 func (c *Command) addCommand(cmd *Command) {
 	if cmd.parent == nil {
 		cmd.parent = c
+	}
+	if cmd.cb == nil {
+		cmd.cb = func() {}
 	}
 	c.Commands = append(c.Commands, cmd)
 }
@@ -71,6 +85,12 @@ func (c *Command) AddCommand(name, description string) *Command {
 }
 
 func (c *Command) addFlag(flag *Flag) {
+	if flag.parent == nil {
+		flag.parent = c
+	}
+	if flag.cb == nil {
+		flag.cb = func() {}
+	}
 	c.Flags = append(c.Flags, flag)
 }
 
@@ -86,8 +106,20 @@ func (c *Command) AddFlag(name, alias, description string) *Flag {
 	return flag
 }
 
+func (c *Command) addArg(arg *Arg) {
+	if arg.parent == nil {
+		arg.parent = c
+	}
+	c.Args = append(c.Args, arg)
+}
+
 func (c *Command) AddArg(name, description string) {
-	c.Args = append(c.Args, name)
+	arg := &Arg{
+		Name:        name,
+		Description: description,
+		parent:      c,
+	}
+	c.addArg(arg)
 }
 
 // Builds help message for command
@@ -135,10 +167,9 @@ func (c *Command) applyConfig(v reflect.Value) {
 		field := v.Type().Field(i)
 
 		if isFlagField(field) {
-			c.addFlag(buildFlag(field))
-
+			c.addFlag(buildFlag(field, v.Field(i)))
 		} else if isArgField(field) {
-
+			c.addArg(buildArg(field, v.Field(i)))
 		} else if isCommandField(field) {
 			c.addCommand(buildCommand(field, v.Field(i)))
 		}

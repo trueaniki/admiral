@@ -26,7 +26,7 @@ func isCommandField(f reflect.StructField) bool {
 	return explicit || implicit
 }
 
-func buildFlag(f reflect.StructField) *Flag {
+func buildFlag(f reflect.StructField, v reflect.Value) *Flag {
 	tag := f.Tag
 
 	name := tag.Get("name")
@@ -37,12 +37,18 @@ func buildFlag(f reflect.StructField) *Flag {
 	required := tag.Get("required")
 
 	return &Flag{
-		Name:         name,
-		Alias:        alias,
-		Description:  description,
-		dataType:     fieldType,
+		Name:        name,
+		Alias:       alias,
+		Description: description,
+
+		dataType: fieldType,
+
 		defaultValue: defaultValue,
 		required:     required == "true",
+
+		set: func(value interface{}) {
+			v.Set(reflect.ValueOf(value))
+		},
 	}
 }
 
@@ -65,4 +71,19 @@ func buildCommand(f reflect.StructField, v reflect.Value) *Command {
 	cmd.applyConfig(v)
 
 	return cmd
+}
+
+func buildArg(f reflect.StructField, v reflect.Value) *Arg {
+	tag := f.Tag
+
+	name := tag.Get("name")
+	description := tag.Get("description")
+
+	return &Arg{
+		Name:        name,
+		Description: description,
+		set: func(value string) {
+			v.SetString(value)
+		},
+	}
 }

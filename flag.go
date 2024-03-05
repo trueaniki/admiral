@@ -10,11 +10,17 @@ type Flag struct {
 	Alias       string
 	Description string
 
-	dataType     string
+	Is    bool
+	Value interface{}
+
+	dataType string
+
 	defaultValue string
 	required     bool
 
 	parent *Command
+
+	set func(interface{})
 
 	cb func()
 }
