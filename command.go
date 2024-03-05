@@ -2,6 +2,7 @@ package admiral
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -17,10 +18,12 @@ type Command struct {
 	cb func()
 }
 
+// Adds callback, which will be called when command is found in args
 func (c *Command) Handle(cb func()) {
 	c.cb = cb
 }
 
+// Finds subcommand by name
 func (c *Command) Command(name string) *Command {
 	for _, cmd := range c.Commands {
 		if cmd.Name == name {
@@ -30,6 +33,7 @@ func (c *Command) Command(name string) *Command {
 	return nil
 }
 
+// Finds flag by name
 func (c *Command) Flag(name string) *Flag {
 	for _, flag := range c.Flags {
 		if flag.Name == name {
@@ -39,16 +43,38 @@ func (c *Command) Flag(name string) *Flag {
 	return nil
 }
 
+func (c *Command) FlagByAlias(alias string) *Flag {
+	for _, flag := range c.Flags {
+		if flag.Alias == alias {
+			return flag
+		}
+	}
+	return nil
+}
+
+func (c *Command) addCommand(cmd *Command) {
+	if cmd.parent == nil {
+		cmd.parent = c
+	}
+	c.Commands = append(c.Commands, cmd)
+}
+
+// Adds subcommand
 func (c *Command) AddCommand(name, description string) *Command {
 	command := &Command{
 		Name:        name,
 		Description: description,
 		parent:      c,
 	}
-	c.Commands = append(c.Commands, command)
+	c.addCommand(command)
 	return command
 }
 
+func (c *Command) addFlag(flag *Flag) {
+	c.Flags = append(c.Flags, flag)
+}
+
+// Adds flag
 func (c *Command) AddFlag(name, alias, description string) *Flag {
 	flag := &Flag{
 		Name:        fmt.Sprintf("--%s", name),
@@ -56,7 +82,7 @@ func (c *Command) AddFlag(name, alias, description string) *Flag {
 		Description: description,
 		parent:      c,
 	}
-	c.Flags = append(c.Flags, flag)
+	c.addFlag(flag)
 	return flag
 }
 
@@ -64,6 +90,7 @@ func (c *Command) AddArg(name, description string) {
 	c.Args = append(c.Args, name)
 }
 
+// Builds help message for command
 func (c *Command) Help() string {
 	s := strings.Builder{}
 
@@ -100,4 +127,20 @@ func (c *Command) Help() string {
 	}
 
 	return s.String()
+}
+
+func (c *Command) applyConfig(v reflect.Value) {
+	// Iterate over the fields of the struct
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Type().Field(i)
+
+		if isFlagField(field) {
+			c.addFlag(buildFlag(field))
+
+		} else if isArgField(field) {
+
+		} else if isCommandField(field) {
+			c.addCommand(buildCommand(field, v.Field(i)))
+		}
+	}
 }
