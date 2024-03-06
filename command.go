@@ -169,11 +169,10 @@ func (c *Command) usage() string {
 	return s.String()
 }
 
+var spaces4 = strings.Repeat(" ", 4)
+var spaces5 = strings.Repeat(" ", 5)
+
 // Builds help message for command
-// TODO: show default values for flags
-// TODO: show required flags
-// TODO: handle case when flag has no alias
-// TODO: show correct usage
 func (c *Command) Help() string {
 	s := strings.Builder{}
 
@@ -197,24 +196,32 @@ func (c *Command) Help() string {
 
 		longest := 0
 		for _, flag := range c.Flags {
-			if len(flag.Name+flag.Alias) > longest {
-				longest = len(flag.Alias + flag.Name)
+			alias := flag.Alias
+			if alias == "" {
+				alias = " "
+			}
+			if len(flag.Name+alias) > longest {
+				longest = len(alias + flag.Name)
 			}
 		}
 
 		for _, flag := range c.Flags {
-			len := len(flag.Alias + flag.Name)
-			gap := strings.Repeat(" ", longest-len)
-			// Write alias if it exists
-			if flag.Alias == "" {
-				s.Write([]byte("  "))
+			alias := flag.Alias
+			if alias == "" {
+				alias = " "
+			}
+			length := len(alias + flag.Name)
+			gap := strings.Repeat(" ", longest-length)
+			// Write alias
+			if alias != " " {
+				s.Write([]byte(fmt.Sprintf("  -%s,", alias)))
 			} else {
-				s.Write([]byte(fmt.Sprintf("  -%s,", flag.Alias)))
+				s.Write([]byte(spaces5))
 			}
 			// Write name
-			s.Write([]byte(fmt.Sprintf(" --%s,", flag.Name)))
+			s.Write([]byte(fmt.Sprintf(" --%s", flag.Name)))
 			// Write gap
-			s.Write([]byte(fmt.Sprintf("%s\t", gap)))
+			s.Write([]byte(fmt.Sprintf("%s%s", gap, spaces4)))
 			// Write description
 			s.Write([]byte(flag.Description))
 
