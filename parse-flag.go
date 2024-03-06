@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-// TODO: handle default values
-// TODO: handle required flags
 func (c *Command) tryParseFlag(i int, args []string) (bool, error) {
 	flagName := args[i]
 
@@ -62,8 +60,6 @@ func (c *Command) parseFlagByName(flagName string, flagValue string) error {
 			if err != nil {
 				return err
 			}
-			// TODO: make this a method
-			// TODO: call callback with flag value
 			flag.Call(v)
 		} else {
 			flag.Call(true)
