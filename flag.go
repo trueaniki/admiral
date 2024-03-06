@@ -6,11 +6,16 @@ import (
 )
 
 type Flag struct {
-	Name        string
-	Alias       string
+	// Flag full name
+	Name string
+	// Flag alias
+	Alias string
+	// Flag description
 	Description string
 
-	Is    bool
+	// Shows flag presence in args
+	Is bool
+	// Stores flag value as soon as it is found in args
 	Value interface{}
 
 	dataType string
@@ -26,6 +31,7 @@ type Flag struct {
 	cb func(value interface{})
 }
 
+// Adds callback, which will be called when flag is found in args
 func (f *Flag) Handle(cb func(value interface{})) {
 	f.cb = cb
 }

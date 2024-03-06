@@ -6,12 +6,18 @@ import (
 )
 
 type Command struct {
-	Name        string
+	// Command name
+	Name string
+	// Command description
 	Description string
-	Commands    []*Command
-	Flags       []*Flag
-	Args        []*Arg
+	// Subcommands
+	Commands []*Command
+	// Flags
+	Flags []*Flag
+	// Positional arguments
+	Args []*Arg
 
+	// Shows command presence in args
 	Is bool
 
 	parent *Command
@@ -28,6 +34,7 @@ func (c *Command) Handle(cb func(opts interface{})) {
 	c.cb = cb
 }
 
+// Sets command presence to true and calls callback
 func (c *Command) Call() {
 	c.Is = true
 	if c.cb != nil {
@@ -36,6 +43,7 @@ func (c *Command) Call() {
 }
 
 // Finds subcommand by name
+// Returns nil if subcommand is not found
 func (c *Command) Command(name string) *Command {
 	for _, cmd := range c.Commands {
 		if cmd.Name == name {
@@ -46,6 +54,7 @@ func (c *Command) Command(name string) *Command {
 }
 
 // Finds flag by name
+// Returns nil if flag is not found
 func (c *Command) Flag(name string) *Flag {
 	for _, flag := range c.Flags {
 		if flag.Name == name {
@@ -55,6 +64,8 @@ func (c *Command) Flag(name string) *Flag {
 	return nil
 }
 
+// Finds flag by alias
+// Returns nil if flag is not found
 func (c *Command) FlagByAlias(alias string) *Flag {
 	for _, flag := range c.Flags {
 		if flag.Alias == alias {
@@ -64,6 +75,8 @@ func (c *Command) FlagByAlias(alias string) *Flag {
 	return nil
 }
 
+// Finds postional argument by name
+// Returns nil if the argument is not found
 func (c *Command) Arg(name string) *Arg {
 	for _, arg := range c.Args {
 		if arg.Name == name {

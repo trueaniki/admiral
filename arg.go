@@ -1,13 +1,17 @@
 package admiral
 
 type Arg struct {
-	Name        string
+	// Positional argument name
+	Name string
+	// Positional argument description
 	Description string
-	// Commands    []Command
 
+	// Explicitly set position in the list of positional arguments
 	Pos int
 
-	Is    bool
+	// Shows positional argument presence in args
+	Is bool
+	// Stores positional argument value as soon as it is found in args
 	Value string
 
 	set func(string)
