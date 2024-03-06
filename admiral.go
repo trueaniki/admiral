@@ -9,12 +9,15 @@ type Admiral struct {
 }
 
 func New(name, description string) *Admiral {
-	return &Admiral{
+	a := &Admiral{
 		command: Command{
 			Name:        name,
 			Description: description,
 		},
 	}
+	// Set the root command to itself for further propagation
+	a.root = a
+	return a
 }
 
 func (a *Admiral) Configure(conf interface{}) {
