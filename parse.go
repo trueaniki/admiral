@@ -51,13 +51,11 @@ func (c *Command) tryParseCommand(argument string) bool {
 	return false
 }
 
-func (c *Command) tryParseArg(argument string) bool {
-	// Check if arg is an argument
-	if arg := c.Arg(argument); arg != nil {
-		arg.Is = true
-		arg.Value = argument
-		arg.set(argument)
-		return true
+func (c *Command) tryParseArg(argValue string) bool {
+	// Check if command has any args configured
+	if len(c.Args) == 0 {
+		return false
 	}
-	return false
+	c.pushArg(argValue)
+	return true
 }
