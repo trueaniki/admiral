@@ -22,7 +22,24 @@ func (c *Command) Parse(args []string) []string {
 		}
 	}
 
-	return rest
+	// Handle default flag value and required flags
+	for _, flag := range p.Flags {
+		if !flag.Is && flag.defaultValue != "" {
+			v, err := parseFlagValue(flag.defaultValue, flag.dataType)
+			if err != nil {
+				return nil, err
+			}
+			flag.Call(v)
+		}
+		if flag.required && !flag.Is {
+			return nil, errors.New("Flag " + flag.Name + " is required")
+		}
+	}
+
+	// Call command callback
+	p.Call()
+
+	return rest, nil
 }
 
 func (c *Command) tryParseCommand(argument string) bool {
