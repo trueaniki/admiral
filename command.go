@@ -2,7 +2,6 @@ package admiral
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 )
 
@@ -74,12 +73,19 @@ func (c *Command) Arg(name string) *Arg {
 	return nil
 }
 
+// Adds arg value to first arg object that has no value
+func (c *Command) pushArg(argValue string) {
+	for _, arg := range c.Args {
+		if !arg.Is {
+			arg.Call(argValue)
+			return
+		}
+	}
+}
+
 func (c *Command) addCommand(cmd *Command) {
 	if cmd.parent == nil {
 		cmd.parent = c
-	}
-	if cmd.cb == nil {
-		cmd.cb = func() {}
 	}
 	c.Commands = append(c.Commands, cmd)
 }
@@ -90,6 +96,8 @@ func (c *Command) AddCommand(name, description string) *Command {
 		Name:        name,
 		Description: description,
 		parent:      c,
+		// Propagate root reference
+		root: c.root,
 	}
 	c.addCommand(command)
 	return command
@@ -98,9 +106,6 @@ func (c *Command) AddCommand(name, description string) *Command {
 func (c *Command) addFlag(flag *Flag) {
 	if flag.parent == nil {
 		flag.parent = c
-	}
-	if flag.cb == nil {
-		flag.cb = func() {}
 	}
 	c.Flags = append(c.Flags, flag)
 }
@@ -121,7 +126,16 @@ func (c *Command) addArg(arg *Arg) {
 	if arg.parent == nil {
 		arg.parent = c
 	}
-	c.Args = append(c.Args, arg)
+	// If specific position is set, add arg to that position
+	if arg.Pos != -1 {
+		for len(c.Args) <= arg.Pos {
+			c.Args = append(c.Args, nil)
+		}
+		c.Args[arg.Pos] = arg
+		// If no position is set, add arg to the end
+	} else {
+		c.Args = append(c.Args, arg)
+	}
 }
 
 func (c *Command) AddArg(name, description string) {
