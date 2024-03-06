@@ -6,10 +6,17 @@ func (c *Command) Parse(args []string) []string {
 	p := c
 
 	for i, arg := range args {
-		if !p.tryParseFlag(i, args) && !p.tryParseArg(arg) {
+		// TODO: arguments should not be parsed like this
+		// TODO: handle flag errors intstead of panicking
+		flagParsed, err := p.tryParseFlag(i, args)
+		if err != nil {
+			return nil, err
+		}
+		if !flagParsed {
 			if p.tryParseCommand(arg) {
+				// TODO: call callback with parsed falgs and args
 				p = p.Command(arg)
-			} else {
+			} else if !p.tryParseArg(arg) {
 				rest = append(rest, arg)
 			}
 		}
