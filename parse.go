@@ -3,8 +3,10 @@ package admiral
 import "errors"
 
 func (c *Command) Parse(args []string) ([]string, error) {
-	rest := []string{}
+	// Remove the first argument, which is the application name
+	args = args[1:]
 
+	rest := []string{}
 	p := c
 
 	for i, arg := range args {
