@@ -1,6 +1,24 @@
 package admiral
 
-import "reflect"
+import (
+	"reflect"
+	"strconv"
+)
+
+func (c *Command) applyConfig(v reflect.Value) {
+	// Iterate over the fields of the struct
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Type().Field(i)
+
+		if isFlagField(field) {
+			c.addFlag(buildFlag(field, v.Field(i)))
+		} else if isArgField(field) {
+			c.addArg(buildArg(field, v.Field(i)))
+		} else if isCommandField(field) {
+			c.addCommand(buildCommand(field, v.Field(i)))
+		}
+	}
+}
 
 func isFlagField(f reflect.StructField) bool {
 	tag := f.Tag
@@ -66,6 +84,13 @@ func buildCommand(f reflect.StructField, v reflect.Value) *Command {
 	cmd := &Command{
 		Name:        name,
 		Description: description,
+		Commands:    []*Command{},
+		Flags:       []*Flag{},
+		Args:        []*Arg{},
+
+		get: func() interface{} {
+			return v.Addr().Interface()
+		},
 	}
 
 	cmd.applyConfig(v)
@@ -78,10 +103,19 @@ func buildArg(f reflect.StructField, v reflect.Value) *Arg {
 
 	name := tag.Get("name")
 	description := tag.Get("description")
+	posStr, hasPos := tag.Lookup("pos")
+	if !hasPos {
+		posStr = "-1"
+	}
+	pos, err := strconv.Atoi(posStr)
+	if err != nil {
+		panic("Arg position must be an integer")
+	}
 
 	return &Arg{
 		Name:        name,
 		Description: description,
+		Pos:         pos,
 		set: func(value string) {
 			v.SetString(value)
 		},
