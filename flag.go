@@ -20,13 +20,24 @@ type Flag struct {
 
 	parent *Command
 
+	// Set value to the field in the config struct
 	set func(interface{})
 
-	cb func()
+	cb func(value interface{})
 }
 
-func (f *Flag) Handle(cb func()) {
+func (f *Flag) Handle(cb func(value interface{})) {
 	f.cb = cb
+}
+
+// Set value and call all side effects
+func (f *Flag) Call(value interface{}) {
+	f.Is = true
+	f.Value = value
+	f.set(value)
+	if f.cb != nil {
+		f.cb(value)
+	}
 }
 
 func parseFlagValue(value, dataType string) (interface{}, error) {

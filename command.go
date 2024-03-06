@@ -16,13 +16,24 @@ type Command struct {
 	Is bool
 
 	parent *Command
+	root   *Admiral
 
-	cb func()
+	// Returns value of the struct configured to this command
+	get func() interface{}
+
+	cb func(opts interface{})
 }
 
 // Adds callback, which will be called when command is found in args
-func (c *Command) Handle(cb func()) {
+func (c *Command) Handle(cb func(opts interface{})) {
 	c.cb = cb
+}
+
+func (c *Command) Call() {
+	c.Is = true
+	if c.cb != nil {
+		c.cb(c.get())
+	}
 }
 
 // Finds subcommand by name

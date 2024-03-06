@@ -62,13 +62,11 @@ func (c *Command) parseFlagByName(flagName string, flagValue string) error {
 			if err != nil {
 				return err
 			}
-			flag.Is = true
-			flag.Value = v
-			flag.set(v)
+			// TODO: make this a method
+			// TODO: call callback with flag value
+			flag.Call(v)
 		} else {
-			flag.Is = true
-			flag.Value = true
-			flag.set(true)
+			flag.Call(true)
 		}
 	} else {
 		return errors.New("Flag " + flagName + " does not exist")
@@ -88,13 +86,9 @@ func (c *Command) parseFlagByAlias(flagAlias string, flagValue string) error {
 			if err != nil {
 				return err
 			}
-			flag.Is = true
-			flag.Value = v
-			flag.set(v)
+			flag.Call(v)
 		} else {
-			flag.Is = true
-			flag.Value = true
-			flag.set(true)
+			flag.Call(true)
 		}
 	} else {
 		return errors.New("Flag " + flagAlias + " does not exist")
