@@ -1,6 +1,8 @@
 package admiral
 
-func (c *Command) Parse(args []string) []string {
+import "errors"
+
+func (c *Command) Parse(args []string) ([]string, error) {
 	rest := []string{}
 
 	p := c

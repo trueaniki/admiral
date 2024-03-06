@@ -5,10 +5,14 @@ import (
 	"strings"
 )
 
-func (c *Command) tryParseFlag(i int, args []string) bool {
+// TODO: handle default values
+// TODO: handle required flags
+func (c *Command) tryParseFlag(i int, args []string) (bool, error) {
 	flagName := args[i]
 
 	// Determine flag value
+	// If flag is bool, set falgValue to whatever
+	// Because bool flags are set to true if they are present
 	flagValue := ""
 	if strings.Contains(flagName, "=") {
 		flagValue = strings.Split(flagName, "=")[1]
@@ -19,31 +23,31 @@ func (c *Command) tryParseFlag(i int, args []string) bool {
 
 	// Check if arg is a flag
 	if !strings.HasPrefix(flagName, "--") && !strings.HasPrefix(flagName, "-") {
-		return false
+		return false, nil
 	}
 
 	// Check if arg is a flag name
 	if strings.HasPrefix(flagName, "--") {
 		if err := c.parseFlagByName(flagName, flagValue); err != nil {
-			panic(err)
+			return false, err
 		}
-		return true
+		return true, nil
 	}
 	// Check if arg is a flag alias
 	if strings.HasPrefix(flagName, "-") && len(flagName) == 2 {
 		if err := c.parseFlagByAlias(flagName, flagValue); err != nil {
-			panic(err)
+			return false, err
 		}
-		return true
+		return true, nil
 	}
 	// Check if arg is a flag group
 	if strings.HasPrefix(flagName, "-") && len(flagName) > 2 {
 		if err := c.parseFlagGroup(flagName); err != nil {
-			panic(err)
+			return false, err
 		}
-		return true
+		return true, nil
 	}
-	return false
+	return false, nil
 }
 
 func (c *Command) parseFlagByName(flagName string, flagValue string) error {
