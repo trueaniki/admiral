@@ -122,18 +122,43 @@ func (c *Command) AddArg(name, description string) {
 	c.addArg(arg)
 }
 
-// Builds help message for command
-func (c *Command) Help() string {
+func (c *Command) usage() string {
 	s := strings.Builder{}
-
 	path := c.Name
 	for p := c.parent; p != nil; p = p.parent {
 		path = fmt.Sprintf("%s %s", p.Name, path)
 	}
+	s.Write([]byte(path))
+	if len(c.Flags) > 0 {
+		s.Write([]byte(" [options]"))
+	}
 
-	s.Write([]byte(fmt.Sprintf("Usage: %s\n", path)))
+	if len(c.Commands) > 0 {
+		s.Write([]byte(" <command>"))
+	}
+
+	for _, arg := range c.Args {
+		s.Write([]byte(fmt.Sprintf(" <%s>", arg.Name)))
+	}
+
+	return s.String()
+}
+
+// Builds help message for command
+// TODO: show default values for flags
+// TODO: show required flags
+// TODO: handle case when flag has no alias
+// TODO: show correct usage
+func (c *Command) Help() string {
+	s := strings.Builder{}
+
+	// Write command usage
+	s.Write([]byte(fmt.Sprintf("Usage: %s\n", c.usage())))
+
+	// Write command description
 	s.Write([]byte(fmt.Sprintf("\n%s\n", c.Description)))
 
+	// Write subcommands
 	if len(c.Commands) > 0 {
 		s.Write([]byte("\nCommands:\n"))
 		for _, cmd := range c.Commands {
@@ -141,6 +166,7 @@ func (c *Command) Help() string {
 		}
 	}
 
+	// Write flags
 	if len(c.Flags) > 0 {
 		s.Write([]byte("\nOptions:\n"))
 
@@ -154,24 +180,33 @@ func (c *Command) Help() string {
 		for _, flag := range c.Flags {
 			len := len(flag.Alias + flag.Name)
 			gap := strings.Repeat(" ", longest-len)
-			s.Write([]byte(fmt.Sprintf("  %s, %s%s\t%s\n", flag.Alias, flag.Name, gap, flag.Description)))
+			// Write alias if it exists
+			if flag.Alias == "" {
+				s.Write([]byte("  "))
+			} else {
+				s.Write([]byte(fmt.Sprintf("  -%s,", flag.Alias)))
+			}
+			// Write name
+			s.Write([]byte(fmt.Sprintf(" --%s,", flag.Name)))
+			// Write gap
+			s.Write([]byte(fmt.Sprintf("%s\t", gap)))
+			// Write description
+			s.Write([]byte(flag.Description))
+
+			// Write default value if it exists
+			if flag.defaultValue != "" {
+				s.Write([]byte(fmt.Sprintf(" (default: %s)", flag.defaultValue)))
+			}
+
+			// Write required flag if it is required
+			if flag.required {
+				s.Write([]byte(" (required)"))
+			}
+
+			// End line
+			s.Write([]byte("\n"))
 		}
 	}
 
 	return s.String()
-}
-
-func (c *Command) applyConfig(v reflect.Value) {
-	// Iterate over the fields of the struct
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Type().Field(i)
-
-		if isFlagField(field) {
-			c.addFlag(buildFlag(field, v.Field(i)))
-		} else if isArgField(field) {
-			c.addArg(buildArg(field, v.Field(i)))
-		} else if isCommandField(field) {
-			c.addCommand(buildCommand(field, v.Field(i)))
-		}
-	}
 }
