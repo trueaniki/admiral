@@ -36,11 +36,14 @@ func (f *Flag) Handle(cb func(value interface{})) {
 	f.cb = cb
 }
 
+// TODO: Handle error when value can't be set as it has different type
 // Set value and call all side effects
 func (f *Flag) Call(value interface{}) {
 	f.Is = true
 	f.Value = value
-	f.set(value)
+	if f.set != nil {
+		f.set(value)
+	}
 	if f.cb != nil {
 		f.cb(value)
 	}
