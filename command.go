@@ -100,7 +100,20 @@ func (c *Command) addCommand(cmd *Command) {
 	if cmd.parent == nil {
 		cmd.parent = c
 	}
+	if cmd.root == nil {
+		cmd.root = c.root
+	}
+	cmd.addHelpFlag()
 	c.Commands = append(c.Commands, cmd)
+}
+
+func (c *Command) addHelpFlag() {
+	if c.Flag("help") == nil {
+		c.AddFlag("help", "h", "Show help").Handle(func(_ interface{}) {
+			c.root.Stdout.Write([]byte(c.Help()))
+			c.root.Exit(0)
+		})
+	}
 }
 
 // Adds subcommand
@@ -126,8 +139,8 @@ func (c *Command) addFlag(flag *Flag) {
 // Adds flag
 func (c *Command) AddFlag(name, alias, description string) *Flag {
 	flag := &Flag{
-		Name:        fmt.Sprintf("--%s", name),
-		Alias:       fmt.Sprintf("-%s", alias),
+		Name:        name,
+		Alias:       alias,
 		Description: description,
 		parent:      c,
 	}

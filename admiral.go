@@ -1,11 +1,18 @@
 package admiral
 
-import "reflect"
+import (
+	"io"
+	"os"
+	"reflect"
+)
 
 type command = Command
 
 type Admiral struct {
 	command
+
+	Stdout io.Writer
+	Exit   func(int)
 }
 
 func New(name, description string) *Admiral {
@@ -14,9 +21,13 @@ func New(name, description string) *Admiral {
 			Name:        name,
 			Description: description,
 		},
+		Stdout: os.Stdout,
+		Exit:   os.Exit,
 	}
 	// Set the root command to itself for further propagation
 	a.root = a
+	// Add help flag to the root command
+	a.addHelpFlag()
 	return a
 }
 
