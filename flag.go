@@ -37,6 +37,7 @@ func (f *Flag) Handle(cb func(value interface{})) {
 }
 
 // TODO: Handle error when value can't be set as it has different type
+// TODO: Handle case when admiral was set up using methods instead of conf struct
 // Set value and call all side effects
 func (f *Flag) Call(value interface{}) {
 	f.Is = true
