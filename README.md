@@ -42,3 +42,13 @@ func main() {
 	fmt.Printf("%+v\n", conf)
 }
 ```
+## Core concepts
+### Command
+Entity representing commands or subcommand of application
+### Admiral
+Root command represnting the binary
+### Arg
+Positinal argument of a command
+### Flag
+Flag (argument with '--' or '-' prefix) of a command
+
