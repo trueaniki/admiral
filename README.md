@@ -52,3 +52,12 @@ Positinal argument of a command
 ### Flag
 Flag (argument with '--' or '-' prefix) of a command
 
+
+## Configuring using struct
+*TBA*
+
+## Configuring using methods
+*TBA*
+
+## Adding handlers
+*TBA*
