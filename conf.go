@@ -111,11 +111,16 @@ func buildArg(f reflect.StructField, v reflect.Value) *Arg {
 	if err != nil {
 		panic("Arg position must be an integer")
 	}
+	required, hasRequired := tag.Lookup("required")
+	if !hasRequired {
+		required = "false"
+	}
 
 	return &Arg{
 		Name:        name,
 		Description: description,
 		Pos:         pos,
+		required:    required == "true",
 		set: func(value string) {
 			v.SetString(value)
 		},

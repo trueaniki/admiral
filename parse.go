@@ -38,6 +38,13 @@ func (c *Command) Parse(args []string) ([]string, error) {
 		}
 	}
 
+	// Handle required args
+	for _, arg := range p.Args {
+		if !arg.Is && arg.required {
+			return nil, errors.New("Argument " + arg.Name + " is required")
+		}
+	}
+
 	// Call command callback
 	p.Call()
 

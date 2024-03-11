@@ -14,6 +14,8 @@ type Arg struct {
 	// Stores positional argument value as soon as it is found in args
 	Value string
 
+	required bool
+
 	set func(string)
 
 	parent *Command
