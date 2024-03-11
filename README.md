@@ -42,6 +42,8 @@ func main() {
 	fmt.Printf("%+v\n", conf)
 }
 ```
+
+
 ## Core concepts
 ### Command
 Entity representing commands or subcommand of application
