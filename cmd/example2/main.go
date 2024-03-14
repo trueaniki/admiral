@@ -28,8 +28,8 @@ type Stop struct{}
 
 func main() {
 	a := admiral.New("example", "Example app")
-	conf := Conf{}
-	a.Configure(&conf)
+	conf := &Conf{}
+	a.Configure(conf)
 	a.Flag("version").Handle(func(value interface{}) {
 		fmt.Println("Version 1.0.0")
 		os.Exit(0)
