@@ -58,7 +58,7 @@ First thing to do is to initialize `admiral` instance:
 ```go
 cli := admiral.New("myApp", "My App")
 ```
-
+Here first argument is an entryopoint name and second is application description. Both are used in help message.
 ### Configuring using struct
 You can use structs to configure the parser:
 ```go
@@ -113,7 +113,38 @@ type Listen struct {
 ```
 
 ## Configuring using methods
-*TBA*
+It's also possible to configure using methods instead of using structs:
+```go
+cli := admiral.New("myApp", "My App")
+cli.AddFlag("host", "h", "Host to listen on").SetType("string").SetRequired(true)
+cli.AddFlag("port", "p", "Port to listen on").SetType("int").SetDefault("8080")
 
+cli.AddCommand("listen")
+
+cli.Command("listen").
+	AddFlag("host", "h", "Host to listen on").
+	SetDataType("string").
+	SetRequired(true)
+
+cli.Command("listen").
+	AddFlag("port", "p", "Port to listen on").
+	SetType("int").
+	SetDefault("8080")
+```
+After parsing arguments:
+```go
+rest, err := cli.Parse(os.Args)
+```
+You can access result by using `.Is` and `.Value` properties. `.Is` stands for entity presence in arguments. `.Value` contains actual value.
+```go
+if !cli.Command("listen").Is {
+	host := cli.Flag("host").Value
+	port := cli.Flag("port").Value
+} else {
+	host := cli.Command("listen").Flag("host").Value
+	port := cli.Command("listen").Flag("port").Value
+}
+
+```
 ## Adding handlers
 *TBA*
