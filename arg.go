@@ -35,3 +35,8 @@ func (a *Arg) Call(value string) {
 		a.cb(value)
 	}
 }
+
+func (a *Arg) SetRequired(b bool) *Arg {
+	a.required = b
+	return a
+}
