@@ -147,4 +147,17 @@ if !cli.Command("listen").Is {
 
 ```
 ## Adding handlers
-*TBA*
+You can add handle callback to each entity:
+```go
+cli.Flag("version").Handle(func (_ interface{}) {
+	fmt.Println("1.0.0")
+	os.Exit(0)
+})
+
+cli.Command("listen").Handle(func (opts interface{}) {
+	ctx := opts.(*Listen)
+	host := ctx.Host
+	port := ctx.Port
+})
+```
+The callback argument contains entity value after parsing. For positional arguments, callback argument has `string` type. For flags and commands it's `interface{}`. You need to downcast it manually.
