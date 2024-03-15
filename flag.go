@@ -50,6 +50,21 @@ func (f *Flag) Call(value interface{}) {
 	}
 }
 
+func (f *Flag) SetRequired(b bool) *Flag {
+	f.required = b
+	return f
+}
+
+func (f *Flag) SetDefault(value string) *Flag {
+	f.defaultValue = value
+	return f
+}
+
+func (f *Flag) SetType(dataType string) *Flag {
+	f.dataType = dataType
+	return f
+}
+
 func parseFlagValue(value, dataType string) (interface{}, error) {
 	switch dataType {
 	case "int":
