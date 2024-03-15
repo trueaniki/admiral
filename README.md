@@ -107,8 +107,8 @@ type Conf struct {
 }
 
 type Listen struct {
-	Host   string           `type:"flag" name:"host" alias:"h" description:"Host to listen on" required:"true"`
-	Port   int              `type:"flag" name:"port" alias:"p" description:"Port to listen on" default:"8080"`
+	Host   string     `type:"flag" name:"host" alias:"h" description:"Host to listen on" required:"true"`
+	Port   int        `type:"flag" name:"port" alias:"p" description:"Port to listen on" default:"8080"`
 }
 ```
 
