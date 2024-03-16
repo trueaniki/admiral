@@ -10,6 +10,7 @@ type Conf struct {
 
 	Network  string `type:"flag" name:"network" alias:"n" description:"Network in CIDR format" required:"true"`
 	Confpath string `type:"flag" name:"conf" alias:"c" description:"Path to config file" default:"/etc/app.conf"`
+	ServeFolder string `type:"arg" name:"servefolder" description:"Folder containing files to serve"`
 
 	Start Start `type:"command" name:"start" description:"Start the app in detached mode"`
 	Stop  Stop  `type:"command" name:"stop" description:"Stop the app"`
@@ -19,6 +20,7 @@ type Start struct {
 	Network  string `type:"flag" name:"network" alias:"n" description:"Network in CIDR format" required:"true"`
 	Logfile  string `type:"flag" name:"logfile" alias:"l" description:"Logfile path" default:"/var/log/app.log"`
 	Confpath string `type:"flag" name:"conf" alias:"c" description:"Path to config file" default:"/etc/app.conf"`
+	ServeFolder string `type:"arg" name:"servefolder" description:"Folder containing files to serve"`
 }
 
 type Stop struct{}
@@ -63,8 +65,9 @@ Here first argument is an entryopoint name and second is application description
 You can use structs to configure the parser:
 ```go
 type Conf struct {
-	Host   string           `type:"flag" name:"host" alias:"h" description:"Host to listen on" required:"true"`
-	Port   int              `type:"flag" name:"port" alias:"p" description:"Port to listen on" default:"8080"`
+	Host   string      `type:"flag" name:"host" alias:"h" description:"Host to listen on" required:"true"`
+	Port   int         `type:"flag" name:"port" alias:"p" description:"Port to listen on" default:"8080"`
+	ServeFolder string `type:"arg" name:"servefolder" description:"Folder containing files to serve" required:"true" pos:"0"`
 	Listen ListenSubcommand `type:"command" name:"listen" description:"Listen specified host and port"`
 }
 ```
@@ -109,6 +112,7 @@ type Conf struct {
 type Listen struct {
 	Host   string     `type:"flag" name:"host" alias:"h" description:"Host to listen on" required:"true"`
 	Port   int        `type:"flag" name:"port" alias:"p" description:"Port to listen on" default:"8080"`
+	ServeFolder string `type:"arg" name:"servefolder" description:"Folder containing files to serve" required:"true" pos:"0"`
 }
 ```
 
@@ -118,6 +122,7 @@ It's also possible to configure using methods instead of using structs:
 cli := admiral.New("myApp", "My App")
 cli.AddFlag("host", "h", "Host to listen on").SetType("string").SetRequired(true)
 cli.AddFlag("port", "p", "Port to listen on").SetType("int").SetDefault("8080")
+cli.AddArg("servefolder", "Folder containing files to serve").SetRequired(true)
 
 cli.AddCommand("listen")
 
@@ -130,6 +135,10 @@ cli.Command("listen").
 	AddFlag("port", "p", "Port to listen on").
 	SetType("int").
 	SetDefault("8080")
+
+cli.Command("listen").
+	AddArg("servefolder", "Folder containing files to serve").
+	SetRequired(true)
 ```
 After parsing arguments:
 ```go
@@ -140,9 +149,11 @@ You can access result by using `.Is` and `.Value` properties. `.Is` stands for e
 if !cli.Command("listen").Is {
 	host := cli.Flag("host").Value
 	port := cli.Flag("port").Value
+	folder := cli.Arg("servefolder").Value
 } else {
 	host := cli.Command("listen").Flag("host").Value
 	port := cli.Command("listen").Flag("port").Value
+	folder := cli.Command("listen").Arg("servefolder").Value
 }
 
 ```
