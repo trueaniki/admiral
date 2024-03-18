@@ -7,13 +7,13 @@ type Arg struct {
 	// Positional argument description
 	Description string
 
-	// Explicitly set position in the list of positional arguments
-	Pos int
-
 	// Shows positional argument presence in args
 	Is bool
 	// Stores positional argument value as soon as it is found in args
 	Value string
+
+	// Explicitly set position in the list of positional arguments
+	pos int
 
 	// Shows if positional argument is required
 	required bool
@@ -46,5 +46,25 @@ func (a *Arg) Call(value string) {
 // Set if positional argument is required
 func (a *Arg) SetRequired(b bool) *Arg {
 	a.required = b
+	return a
+}
+
+// Set position in the list of positional arguments
+func (a *Arg) SetPos(pos int) *Arg {
+	args := a.parent.Args
+	if pos < 0 {
+		return a
+	}
+	if pos >= len(args) {
+		// Extend the slice if necessary
+		for len(args) <= pos {
+			args = append(args, nil)
+		}
+	} else {
+		// Insert a at position pos
+		args = append(args[:pos+1], args[pos:]...)
+		args[pos] = a
+	}
+	a.parent.Args = args
 	return a
 }

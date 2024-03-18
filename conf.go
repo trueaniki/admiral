@@ -119,7 +119,7 @@ func buildArg(f reflect.StructField, v reflect.Value) *Arg {
 	return &Arg{
 		Name:        name,
 		Description: description,
-		Pos:         pos,
+		pos:         pos,
 		required:    required == "true",
 		set: func(value string) {
 			v.SetString(value)
