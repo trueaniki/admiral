@@ -2,6 +2,9 @@ package admiral
 
 import "errors"
 
+// Parse command line arguments.
+// Sets values to the struct fields and calls callbacks.
+// Returns rest of the arguments that were not parsed for any reason.
 func (c *Command) Parse(args []string) ([]string, error) {
 	// Remove the first argument, which is the application name
 	args = args[1:]
@@ -51,6 +54,7 @@ func (c *Command) Parse(args []string) ([]string, error) {
 	return rest, nil
 }
 
+// Try to parse command
 func (c *Command) tryParseCommand(argument string) bool {
 	// Check if arg is a command
 	if cmd := c.Command(argument); cmd != nil {
@@ -60,6 +64,7 @@ func (c *Command) tryParseCommand(argument string) bool {
 	return false
 }
 
+// Try to parse argument
 func (c *Command) tryParseArg(argValue string) bool {
 	// Check if command has any args configured
 	if len(c.Args) == 0 {

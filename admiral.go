@@ -8,13 +8,20 @@ import (
 
 type command = Command
 
+// Admiral is the root command and therefore the entry point of the application.
 type Admiral struct {
+	// Derive from Command.
 	command
 
+	// Allows to set writer for help messages.
 	Stdout io.Writer
-	Exit   func(int)
+	// Allows to set exit function
+	// which is called after help message is shown
+	// or when an error occurs.
+	Exit func(int)
 }
 
+// Create a new Admiral instance
 func New(name, description string) *Admiral {
 	a := &Admiral{
 		command: Command{
@@ -31,6 +38,8 @@ func New(name, description string) *Admiral {
 	return a
 }
 
+// Parse and apply config struct to create commands, flags and args.
+// Panics if the passed interface is not a pointer to a struct
 func (a *Admiral) Configure(conf interface{}) {
 	v := reflect.ValueOf(conf)
 	// Check if the passed interface is a pointer and points to a struct

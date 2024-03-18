@@ -5,6 +5,7 @@ import (
 	"strconv"
 )
 
+// Flag entity represents a flag with full name, alias, description and value
 type Flag struct {
 	// Flag full name
 	Name string
@@ -18,16 +19,21 @@ type Flag struct {
 	// Stores flag value as soon as it is found in args
 	Value interface{}
 
+	// Flag data type
 	dataType string
 
+	// Default value for the flag
 	defaultValue string
-	required     bool
+	// Shows if flag is required
+	required bool
 
+	// Parent command
 	parent *Command
 
 	// Set value to the field in the config struct
 	set func(interface{})
 
+	// Callback to be called when flag is found in args
 	cb func(value interface{})
 }
 
@@ -36,8 +42,7 @@ func (f *Flag) Handle(cb func(value interface{})) {
 	f.cb = cb
 }
 
-// TODO: Handle error when value can't be set as it has different type
-// TODO: Handle case when admiral was set up using methods instead of conf struct
+// TODO: figure out where to check data type
 // Set value and call all side effects
 func (f *Flag) Call(value interface{}) {
 	f.Is = true
@@ -50,21 +55,27 @@ func (f *Flag) Call(value interface{}) {
 	}
 }
 
+// Set if flag is required
 func (f *Flag) SetRequired(b bool) *Flag {
 	f.required = b
 	return f
 }
 
+// Set default value for the flag
 func (f *Flag) SetDefault(value string) *Flag {
 	f.defaultValue = value
 	return f
 }
 
+// Set data type for the flag
+// Possible values: int, int64, int32, int16, int8, uint, uint64, uint32, uint16, uint8, float, bool, string
+// Default value: bool
 func (f *Flag) SetType(dataType string) *Flag {
 	f.dataType = dataType
 	return f
 }
 
+// Parse flag value based on data type
 func parseFlagValue(value, dataType string) (interface{}, error) {
 	switch dataType {
 	case "int":

@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// Command entity represents a command with subcommands, flags and positional arguments
 type Command struct {
 	// Command name
 	Name string
@@ -20,12 +21,15 @@ type Command struct {
 	// Shows command presence in args
 	Is bool
 
+	// Parent command
 	parent *Command
-	root   *Admiral
+	// Root Admiral instance
+	root *Admiral
 
 	// Returns value of the struct configured to this command
 	get func() interface{}
 
+	// Callback to be called when command is found in args
 	cb func(opts interface{})
 }
 
@@ -96,6 +100,7 @@ func (c *Command) pushArg(argValue string) {
 	}
 }
 
+// Add command raw
 func (c *Command) addCommand(cmd *Command) {
 	if cmd.parent == nil {
 		cmd.parent = c
@@ -116,7 +121,7 @@ func (c *Command) addHelpFlag() {
 	}
 }
 
-// Adds subcommand
+// Add subcommand
 func (c *Command) AddCommand(name, description string) *Command {
 	command := &Command{
 		Name:        name,
@@ -129,14 +134,18 @@ func (c *Command) AddCommand(name, description string) *Command {
 	return command
 }
 
+// Add flag raw
 func (c *Command) addFlag(flag *Flag) {
 	if flag.parent == nil {
 		flag.parent = c
 	}
+	if flag.dataType == "" {
+		flag.dataType = "bool"
+	}
 	c.Flags = append(c.Flags, flag)
 }
 
-// Adds flag
+// Add flag
 func (c *Command) AddFlag(name, alias, description string) *Flag {
 	flag := &Flag{
 		Name:        name,
@@ -148,22 +157,24 @@ func (c *Command) AddFlag(name, alias, description string) *Flag {
 	return flag
 }
 
+// Add arg raw
 func (c *Command) addArg(arg *Arg) {
 	if arg.parent == nil {
 		arg.parent = c
 	}
 	// If specific position is set, add arg to that position
-	if arg.Pos != -1 {
-		for len(c.Args) <= arg.Pos {
+	if arg.pos != -1 {
+		for len(c.Args) <= arg.pos {
 			c.Args = append(c.Args, nil)
 		}
-		c.Args[arg.Pos] = arg
+		c.Args[arg.pos] = arg
 		// If no position is set, add arg to the end
 	} else {
 		c.Args = append(c.Args, arg)
 	}
 }
 
+// Add arg
 func (c *Command) AddArg(name, description string) {
 	arg := &Arg{
 		Name:        name,
@@ -173,6 +184,7 @@ func (c *Command) AddArg(name, description string) {
 	c.addArg(arg)
 }
 
+// Build usage string for command
 func (c *Command) usage() string {
 	s := strings.Builder{}
 	path := c.Name

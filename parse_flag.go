@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// Try to parse flag from args
 func (c *Command) tryParseFlag(i int, args []string) (bool, error) {
 	flagName := args[i]
 
@@ -48,6 +49,8 @@ func (c *Command) tryParseFlag(i int, args []string) (bool, error) {
 	return false, nil
 }
 
+// Parse flag by name
+// like --flag
 func (c *Command) parseFlagByName(flagName string, flagValue string) error {
 	// Remove the -- prefix if it exists
 	flagName = strings.TrimPrefix(flagName, "--")
@@ -70,6 +73,8 @@ func (c *Command) parseFlagByName(flagName string, flagValue string) error {
 	return nil
 }
 
+// Parse flag by alias
+// like -f
 func (c *Command) parseFlagByAlias(flagAlias string, flagValue string) error {
 	// Remove the - prefix if it exists
 	flagAlias = strings.TrimPrefix(flagAlias, "-")
@@ -92,6 +97,8 @@ func (c *Command) parseFlagByAlias(flagAlias string, flagValue string) error {
 	return nil
 }
 
+// Parse flag group
+// like -abc
 func (c *Command) parseFlagGroup(flagGroup string) error {
 	// Remove the - prefix
 	flagGroup = flagGroup[1:]
