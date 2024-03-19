@@ -184,6 +184,7 @@ func (c *Command) AddArg(name, description string) {
 	c.addArg(arg)
 }
 
+// TODO: allow users to modify message for each entity
 // Build usage string for command
 func (c *Command) usage() string {
 	s := strings.Builder{}
