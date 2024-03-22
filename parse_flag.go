@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// FIXME: Space flag & value delimeter is not working
 // Try to parse flag from args
 func (c *Command) tryParseFlag(i int, args []string) (bool, error) {
 	flagName := args[i]
